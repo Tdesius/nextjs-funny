@@ -1,5 +1,6 @@
 'use client';
 
+import type { JSX } from 'react';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,22 +10,55 @@ import {
   Home, 
   Calendar, 
   Users, 
-  DollarSign, 
+  //DollarSign, 
   MapPin, 
   Star, 
   CheckCircle, 
   AlertCircle,
   CreditCard,
   Building,
-  Bed,
+  //Bed,
   Wifi,
   Car,
   Coffee
 } from 'lucide-react';
 
+interface Room {
+  id: number;
+  name: string;
+  type: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  location: string;
+  image: string;
+  amenities: string[];
+  maxGuests: number;
+  propertyOwnerId: string;
+  description: string;
+}
+
+/*interface BookingDetails {
+  roomName: string;
+  roomType: string;
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+  nights: number;
+  location: string;
+}*/
+
+interface BookingResult {
+  bookingId: string;
+  paymentIntentId: string;
+  amountPaid: string;
+  platformFee: string;
+  note?: string;
+  [key: string]: unknown; // for any extra fields
+}
+
 const RoomRentalSystem = () => {
   // Booking state
-  const [selectedRoom, setSelectedRoom] = useState(null);
   const [bookingData, setBookingData] = useState({
     email: '',
     checkIn: '',
@@ -32,11 +66,14 @@ const RoomRentalSystem = () => {
     guests: 1
   });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [bookingStatus, setBookingStatus] = useState(null);
-  const [bookingResult, setBookingResult] = useState(null);
+  const [bookingStatus, setBookingStatus] = useState<'processing' | 'success' | 'failed' | null>(null);
+  
+  // Properly typed bookingResult state
+  const [bookingResult, setBookingResult] = useState<BookingResult | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
-  // Sample room data for demo
-  const rooms = [
+  // Sample rooms — keep your existing sample data
+  const rooms: Room[] = [
     {
       id: 1,
       name: "Luxury City Suite",
@@ -140,6 +177,7 @@ const RoomRentalSystem = () => {
 
       if (result.success) {
         setBookingStatus('success');
+        // Assuming result contains fields matching BookingResult interface
         setBookingResult(result);
       } else {
         setBookingStatus('failed');
@@ -165,8 +203,10 @@ const RoomRentalSystem = () => {
     });
   };
 
-  const getAmenityIcon = (amenity) => {
-    const icons = {
+  type Amenity = 'wifi' | 'parking' | 'kitchen' | 'gym' | string;
+
+  const getAmenityIcon = (amenity: Amenity) => {
+    const icons: Record<string, JSX.Element> = {
       wifi: <Wifi className="h-4 w-4" />,
       parking: <Car className="h-4 w-4" />,
       kitchen: <Coffee className="h-4 w-4" />,
